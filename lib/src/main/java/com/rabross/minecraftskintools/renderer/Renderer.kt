@@ -2,7 +2,9 @@ package com.rabross.minecraftskintools.renderer
 
 import android.graphics.Bitmap
 import android.graphics.Canvas
-import com.rabross.minecraftskintools.extractor.*
+import com.rabross.minecraftskintools.Part
+import com.rabross.minecraftskintools.Section
+import com.rabross.minecraftskintools.extractor.extractSection
 import java.util.*
 
 fun obtainRenderingBitmap(): Bitmap {
@@ -14,18 +16,20 @@ fun renderFull(skinTexture: Bitmap, width: Int = 16, height: Int = 32): Bitmap {
     val fullRender = obtainRenderingBitmap()
 
     avatar {
-        withHead { bitmap = skinTexture.extractHead() }
-        withBody { bitmap = skinTexture.extractBody() }
-        withRightArm { bitmap = skinTexture.extractRightArm() }
-        withLeftArm { bitmap = skinTexture.extractLeftArm() }
-        withRightLeg { bitmap = skinTexture.extractRightLeg() }
-        withLeftLeg { bitmap = skinTexture.extractLeftLeg() }
-        withHead { bitmap = skinTexture.extractHeadOverlay() }
-        withBody { bitmap = skinTexture.extractBodyOverlay() }
-        withRightArm { bitmap = skinTexture.extractRightArmOverlay() }
-        withLeftArm { bitmap = skinTexture.extractLeftArmOverlay() }
-        withRightLeg { bitmap = skinTexture.extractRightLegOverlay() }
-        withLeftLeg { bitmap = skinTexture.extractLeftLegOverlay() }
+        with(skinTexture) {
+            withHead(extractSection(Section.Head()))
+            withBody(extractSection(Section.Body()))
+            withRightArm(extractSection(Section.ArmRight()))
+            withLeftArm(extractSection(Section.ArmLeft()))
+            withRightLeg(extractSection(Section.LegRight()))
+            withLeftLeg(extractSection(Section.LegLeft()))
+            withHead(extractSection(Section.HeadOverlay()))
+            withBody(extractSection(Section.BodyOverlay()))
+            withRightArm(extractSection(Section.ArmRightOverlay()))
+            withLeftArm(extractSection(Section.ArmLeftOverlay()))
+            withRightLeg(extractSection(Section.LegRightOverlay()))
+            withLeftLeg(extractSection(Section.LegLeftOverlay()))
+        }
     }.draw(Canvas(fullRender))
 
     return Bitmap.createScaledBitmap(fullRender, width, height, false).also { fullRender.recycle() }
@@ -36,49 +40,27 @@ fun renderPrimary(skinTexture: Bitmap, width: Int = 16, height: Int = 32): Bitma
     val fullRender = obtainRenderingBitmap()
 
     avatar {
-        withHead { bitmap = skinTexture.extractHead() }
-        withBody { bitmap = skinTexture.extractBody() }
-        withRightArm { bitmap = skinTexture.extractRightArm() }
-        withLeftArm { bitmap = skinTexture.extractLeftArm() }
-        withRightLeg { bitmap = skinTexture.extractRightLeg() }
-        withLeftLeg { bitmap = skinTexture.extractLeftLeg() }
+        with(skinTexture) {
+            withHead(extractSection(Section.Head()))
+            withBody(extractSection(Section.Body()))
+            withRightArm(extractSection(Section.ArmRight()))
+            withLeftArm(extractSection(Section.ArmLeft()))
+            withRightLeg(extractSection(Section.LegRight()))
+            withLeftLeg(extractSection(Section.LegLeft()))
+        }
     }.draw(Canvas(fullRender))
 
     return Bitmap.createScaledBitmap(fullRender, width, height, false).also { fullRender.recycle() }
 }
 
-private fun Canvas.drawHead(head: Bitmap) {
-    drawBitmap(head, 4f, 0f, null)
-}
-
-private fun Canvas.drawBody(body: Bitmap) {
-    drawBitmap(body, 4f, 8f, null)
-}
-
-private fun Canvas.drawRightArm(rightArm: Bitmap) {
-    drawBitmap(rightArm, 0f, 8f, null)
-}
-
-private fun Canvas.drawLeftArm(leftArm: Bitmap) {
-    drawBitmap(leftArm, 12f, 8f, null)
-}
-
-private fun Canvas.drawRightLeg(rightLeg: Bitmap) {
-    drawBitmap(rightLeg, 4f, 20f, null)
-}
-
-private fun Canvas.drawLeftLeg(leftLeg: Bitmap) {
-    drawBitmap(leftLeg, 8f, 20f, null)
-}
-
-fun List<Part>.draw(canvas: Canvas) {
+fun List<DrawPart>.draw(canvas: Canvas) {
     forEach {
         it.draw(canvas)
         it.recycle()
     }
 }
 
-fun avatar(func: RenderBuilder.() -> Unit): List<Part> {
+fun avatar(func: RenderBuilder.() -> Unit): List<DrawPart> {
     return RenderBuilder().run {
         func()
         build()
@@ -89,112 +71,101 @@ class RenderBuilder {
 
     private var parts = ArrayList<PartBuilder>()
 
-    fun withHead(func: PartBuilder.() -> Unit) {
-        parts.add(PartBuilder.Head().apply(func))
+    fun withHead(bitmap: Bitmap) {
+        parts.add(PartBuilder.Head(bitmap))
     }
 
-    fun withBody(func: PartBuilder.() -> Unit) {
-        parts.add(PartBuilder.Body().apply(func))
+    fun withBody(bitmap: Bitmap) {
+        parts.add(PartBuilder.Body(bitmap))
     }
 
-    fun withRightArm(func: PartBuilder.() -> Unit) {
-        parts.add(PartBuilder.ArmRight().apply(func))
+    fun withRightArm(bitmap: Bitmap) {
+        parts.add(PartBuilder.ArmRight(bitmap))
     }
 
-    fun withLeftArm(func: PartBuilder.() -> Unit) {
-        parts.add(PartBuilder.ArmLeft().apply(func))
+    fun withLeftArm(bitmap: Bitmap) {
+        parts.add(PartBuilder.ArmLeft(bitmap))
     }
 
-    fun withRightLeg(func: PartBuilder.() -> Unit) {
-        parts.add(PartBuilder.LegRight().apply(func))
+    fun withRightLeg(bitmap: Bitmap) {
+        parts.add(PartBuilder.LegRight(bitmap))
     }
 
-    fun withLeftLeg(func: PartBuilder.() -> Unit) {
-        parts.add(PartBuilder.LegLeft().apply(func))
+    fun withLeftLeg(bitmap: Bitmap) {
+        parts.add(PartBuilder.LegLeft(bitmap))
     }
 
-    fun build(): List<Part> {
+    fun build(): List<DrawPart> {
         return parts.map { it.build() }
     }
 }
 
-sealed class Part {
+sealed class PartBuilder(private val bitmap: Bitmap) {
 
-    abstract val bitmap: Bitmap
+    fun build(): DrawPart {
+        return when (this) {
+            is Head -> DrawPart.Head(Part.Head(bitmap))
+            is Body -> DrawPart.Body(Part.Body(bitmap))
+            is ArmRight -> DrawPart.ArmRight(Part.ArmRight(bitmap))
+            is ArmLeft -> DrawPart.ArmLeft(Part.ArmLeft(bitmap))
+            is LegRight -> DrawPart.LegRight(Part.LegRight(bitmap))
+            is LegLeft -> DrawPart.LegLeft(Part.LegLeft(bitmap))
+        }
+    }
+
+    class Head(bitmap: Bitmap) : PartBuilder(bitmap)
+    class Body(bitmap: Bitmap) : PartBuilder(bitmap)
+    class ArmRight(bitmap: Bitmap) : PartBuilder(bitmap)
+    class ArmLeft(bitmap: Bitmap) : PartBuilder(bitmap)
+    class LegRight(bitmap: Bitmap) : PartBuilder(bitmap)
+    class LegLeft(bitmap: Bitmap) : PartBuilder(bitmap)
+}
+
+sealed class DrawPart(private val bitmap: Bitmap) {
+
     abstract fun draw(canvas: Canvas)
 
     fun recycle() {
         bitmap.recycle()
     }
 
-    data class Head(override val bitmap: Bitmap) : Part() {
+    protected fun Canvas.drawPart(part: Part) {
+        with(part) { drawBitmap(bitmap, left, top, null) }
+    }
+
+    data class Head(val part: Part) : DrawPart(part.bitmap) {
         override fun draw(canvas: Canvas) {
-            canvas.drawHead(bitmap)
+            canvas.drawPart(part)
         }
     }
 
-    data class Body(override val bitmap: Bitmap) : Part() {
+    data class Body(val part: Part) : DrawPart(part.bitmap) {
         override fun draw(canvas: Canvas) {
-            canvas.drawBody(bitmap)
+            canvas.drawPart(part)
         }
     }
 
-    data class RightArm(override val bitmap: Bitmap) : Part() {
+    data class ArmRight(val part: Part) : DrawPart(part.bitmap) {
         override fun draw(canvas: Canvas) {
-            canvas.drawRightArm(bitmap)
+            canvas.drawPart(part)
         }
     }
 
-    data class LeftArm(override val bitmap: Bitmap) : Part() {
+    data class ArmLeft(val part: Part) : DrawPart(part.bitmap) {
         override fun draw(canvas: Canvas) {
-            canvas.drawLeftArm(bitmap)
+            canvas.drawPart(part)
         }
     }
 
-    data class RightLeg(override val bitmap: Bitmap) : Part() {
+    data class LegRight(val part: Part) : DrawPart(part.bitmap) {
         override fun draw(canvas: Canvas) {
-            canvas.drawRightLeg(bitmap)
+            canvas.drawPart(part)
         }
     }
 
-    data class LeftLeg(override val bitmap: Bitmap) : Part() {
+    data class LegLeft(val part: Part) : DrawPart(part.bitmap) {
         override fun draw(canvas: Canvas) {
-            canvas.drawLeftLeg(bitmap)
+            canvas.drawPart(part)
         }
     }
-}
-
-sealed class PartBuilder {
-
-    var bitmap: Bitmap? = null
-
-    fun build(): Part {
-        return when (this) {
-            is Head -> Part.Head(
-                bitmap!!
-            )
-            is Body -> Part.Body(
-                bitmap!!
-            )
-            is ArmRight -> Part.RightArm(
-                bitmap!!
-            )
-            is ArmLeft -> Part.LeftArm(
-                bitmap!!
-            )
-            is LegRight -> Part.RightLeg(
-                bitmap!!
-            )
-            is LegLeft -> Part.LeftLeg(
-                bitmap!!
-            )
-        }
-    }
-
-    class Head : PartBuilder()
-    class Body : PartBuilder()
-    class ArmRight : PartBuilder()
-    class ArmLeft : PartBuilder()
-    class LegRight : PartBuilder()
-    class LegLeft : PartBuilder()
 }
