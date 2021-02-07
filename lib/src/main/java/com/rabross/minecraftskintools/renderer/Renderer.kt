@@ -4,51 +4,87 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import com.rabross.minecraftskintools.Part
 import com.rabross.minecraftskintools.Section
+import com.rabross.minecraftskintools.SectionHD
 import com.rabross.minecraftskintools.extractor.extractSection
+import com.rabross.minecraftskintools.extractor.extractSectionHD
 import java.util.*
 
-fun obtainRenderingBitmap(): Bitmap {
-    return Bitmap.createBitmap(16, 32, Bitmap.Config.ARGB_8888)
+fun obtainRenderingBitmap(width: Int): Bitmap {
+    return if (width == 64) {
+        Bitmap.createBitmap(16, 32, Bitmap.Config.ARGB_8888)
+    }else Bitmap.createBitmap(36, 70, Bitmap.Config.ARGB_8888)
 }
 
 fun renderFull(skinTexture: Bitmap, width: Int = 16, height: Int = 32): Bitmap {
 
-    val fullRender = obtainRenderingBitmap()
+    val fullRender = obtainRenderingBitmap(skinTexture.width)
 
-    avatar {
-        with(skinTexture) {
-            withHead(extractSection(Section.Head()))
-            withBody(extractSection(Section.Body()))
-            withRightArm(extractSection(Section.ArmRight()))
-            withLeftArm(extractSection(Section.ArmLeft()))
-            withRightLeg(extractSection(Section.LegRight()))
-            withLeftLeg(extractSection(Section.LegLeft()))
-            withHead(extractSection(Section.HeadOverlay()))
-            withBody(extractSection(Section.BodyOverlay()))
-            withRightArm(extractSection(Section.ArmRightOverlay()))
-            withLeftArm(extractSection(Section.ArmLeftOverlay()))
-            withRightLeg(extractSection(Section.LegRightOverlay()))
-            withLeftLeg(extractSection(Section.LegLeftOverlay()))
-        }
-    }.draw(Canvas(fullRender))
+    if (skinTexture.width == 64) {
+        avatar {
+            with(skinTexture) {
+                withHead(extractSection(Section.Head()))
+                withBody(extractSection(Section.Body()))
+                withRightArm(extractSection(Section.ArmRight()))
+                withLeftArm(extractSection(Section.ArmLeft()))
+                withRightLeg(extractSection(Section.LegRight()))
+                withLeftLeg(extractSection(Section.LegLeft()))
+                withHead(extractSection(Section.HeadOverlay()))
+                withBody(extractSection(Section.BodyOverlay()))
+                withRightArm(extractSection(Section.ArmRightOverlay()))
+                withLeftArm(extractSection(Section.ArmLeftOverlay()))
+                withRightLeg(extractSection(Section.LegRightOverlay()))
+                withLeftLeg(extractSection(Section.LegLeftOverlay()))
+            }
+        }.draw(Canvas(fullRender))
+    }else {
+        avatar {
+            with(skinTexture) {
+                withHead(extractSectionHD(SectionHD.Head()))
+                withBody(extractSectionHD(SectionHD.Body()))
+                withRightArm(extractSectionHD(SectionHD.ArmRight()))
+                withLeftArm(extractSectionHD(SectionHD.ArmLeft()))
+                withRightLeg(extractSectionHD(SectionHD.LegRight()))
+                withLeftLeg(extractSectionHD(SectionHD.LegLeft()))
+                withHead(extractSectionHD(SectionHD.HeadOverlay()))
+                withBody(extractSectionHD(SectionHD.BodyOverlay()))
+                withRightArm(extractSectionHD(SectionHD.ArmRightOverlay()))
+                withLeftArm(extractSectionHD(SectionHD.ArmLeftOverlay()))
+                withRightLeg(extractSectionHD(SectionHD.LegRightOverlay()))
+                withLeftLeg(extractSectionHD(SectionHD.LegLeftOverlay()))
+            }
+        }.draw(Canvas(fullRender))
+    }
 
     return Bitmap.createScaledBitmap(fullRender, width, height, false).also { fullRender.recycle() }
 }
 
 fun renderPrimary(skinTexture: Bitmap, width: Int = 16, height: Int = 32): Bitmap {
 
-    val fullRender = obtainRenderingBitmap()
+    val fullRender = obtainRenderingBitmap(skinTexture.width)
 
-    avatar {
-        with(skinTexture) {
-            withHead(extractSection(Section.Head()))
-            withBody(extractSection(Section.Body()))
-            withRightArm(extractSection(Section.ArmRight()))
-            withLeftArm(extractSection(Section.ArmLeft()))
-            withRightLeg(extractSection(Section.LegRight()))
-            withLeftLeg(extractSection(Section.LegLeft()))
-        }
-    }.draw(Canvas(fullRender))
+    if (skinTexture.width == 64){
+        avatar {
+            with(skinTexture) {
+                withHead(extractSection(Section.Head()))
+                withBody(extractSection(Section.Body()))
+                withRightArm(extractSection(Section.ArmRight()))
+                withLeftArm(extractSection(Section.ArmLeft()))
+                withRightLeg(extractSection(Section.LegRight()))
+                withLeftLeg(extractSection(Section.LegLeft()))
+            }
+        }.draw(Canvas(fullRender))
+    }else {
+        avatar {
+            with(skinTexture) {
+                withHead(extractSectionHD(SectionHD.Head()))
+                withBody(extractSectionHD(SectionHD.Body()))
+                withRightArm(extractSectionHD(SectionHD.ArmRight()))
+                withLeftArm(extractSectionHD(SectionHD.ArmLeft()))
+                withRightLeg(extractSectionHD(SectionHD.LegRight()))
+                withLeftLeg(extractSectionHD(SectionHD.LegLeft()))
+            }
+        }.draw(Canvas(fullRender))
+    }
 
     return Bitmap.createScaledBitmap(fullRender, width, height, false).also { fullRender.recycle() }
 }
