@@ -17,3 +17,18 @@ sealed class Section(val x: Int, val y: Int, val width: Int, val height: Int) {
     class LegRightOverlay : Section(4, 36, 4, 12)
     class LegLeftOverlay : Section(4, 52, 4, 12)
 }
+
+sealed class SectionHD(val x: Int, val y: Int, val width: Int, val height: Int) {
+    class Head : SectionHD(8 * 2, 8 * 2, 8 * 2, 8 * 2)
+    class Body : SectionHD(20 * 2, 20 * 2, 8 * 2, 12 * 2)
+    class ArmRight : SectionHD(44 * 2, 20 * 2, 4 * 2, 12 * 2)
+    class ArmLeft : SectionHD(36 * 2, 52 * 2, 4 * 2, 12 * 2)
+    class LegRight : SectionHD(4 * 2, 20 * 2, 4 * 2, 12 * 2)
+    class LegLeft : SectionHD(20 * 2, 52 * 2, 4 * 2, 12 * 2)
+    class HeadOverlay : SectionHD(40 * 2, 8 * 2, 8 * 2, 8 * 2)
+    class BodyOverlay : SectionHD(20 * 2, 36 * 2, 8 * 2, 12 * 2)
+    class ArmRightOverlay : SectionHD(44 * 2, 36 * 2, 4 * 2, 12 * 2)
+    class ArmLeftOverlay : SectionHD(52 * 2, 52 * 2, 4 * 2, 12 * 2)
+    class LegRightOverlay : SectionHD(4 * 2, 36 * 2, 4 * 2, 12 * 2)
+    class LegLeftOverlay : SectionHD(4 * 2, 52 * 2, 4 * 2, 12 * 2)
+}
